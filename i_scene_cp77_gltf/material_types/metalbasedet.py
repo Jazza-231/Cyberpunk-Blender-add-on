@@ -119,7 +119,9 @@ class MetalBaseDet:
         if "DetailColor" in Data:
             # multiply BaseColor and DetailColor
             finalColor = create_node(CurMat.nodes,"ShaderNodeMixRGB", (-350,50), blend_type = 'MULTIPLY')
+            alphaGreaterNode = create_node(CurMat.nodes,"ShaderNodeMath", (-350,-50), operation = "GREATER_THAN")
             finalColor.inputs[0].default_value = 1
+            alphaGreaterNode.inputs[1].default_value = 0.8
             CurMat.links.new(sBaseCol.outputs[0],finalColor.inputs[1])
             CurMat.links.new(dColmul.outputs[0],finalColor.inputs[2])
 
@@ -165,7 +167,8 @@ class MetalBaseDet:
         # final links
         if "DetailColor" in Data:
             CurMat.links.new(finalColor.outputs[0],pBSDF.inputs['Base Color'])
-            CurMat.links.new(dColNode.outputs[1],pBSDF.inputs['Alpha'])
+            CurMat.links.new(dColNode.outputs[1],alphaGreaterNode.inputs[0])
+            CurMat.links.new(alphaGreaterNode.outputs[0],pBSDF.inputs['Alpha'])
         else:
             CurMat.links.new(sBaseCol.outputs[0],pBSDF.inputs['Base Color'])
 

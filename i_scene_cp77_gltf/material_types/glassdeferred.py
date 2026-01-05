@@ -50,6 +50,7 @@ class GlassDeferred:
 #
         if "Normal" in Data:
             nMap = CreateShaderNodeNormalMap(CurMat,self.BasePath + Data["Normal"],-200,-500,'Normal',self.image_format)
+            nMap.inputs[0].default_value = 0.1
             CurMat.links.new(nMap.outputs[0],glassBSDF.inputs['Normal'])
 #       
      
