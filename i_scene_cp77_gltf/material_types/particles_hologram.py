@@ -10,9 +10,6 @@ class ParticlesHologram:
         self.image_format = image_format
 
     def create(self, Data, Mat):
-        print("jazza Data ", Data)
-        print("jazza Mat ", Mat)
-
         CurMat = Mat.node_tree
         pBSDF = CurMat.nodes[loc("Principled BSDF")]
         sockets = bsdf_socket_names()
