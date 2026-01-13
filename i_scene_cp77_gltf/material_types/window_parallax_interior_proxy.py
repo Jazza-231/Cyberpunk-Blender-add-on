@@ -13,12 +13,11 @@ class windowParallaxIntProx:
         CurMat = Mat.node_tree
         pBSDF=CurMat.nodes[loc('Principled BSDF')]
         CurMat.nodes.remove(pBSDF)
-        AspectRatio=1
-        # Aspect ratios is in the filename
-        if "RoomAtlas" in Data:
-            pattern = r'_[0-9]x[0-9]_'
-            matches = re.findall(pattern, Data["RoomAtlas"])[0]
-            AspectRatio = int(matches[1])/int(matches[3])
+        AspectRatio=1.0
+        # Aspect ratios can not be reliably determined from the filename
+        if "AtlasGridUvRatio" in Data:
+            AtlasGridUvRatio = Data["AtlasGridUvRatio"]
+            AspectRatio = (4/AtlasGridUvRatio["Y"])/AtlasGridUvRatio["X"]
             AspectRatioVal = CreateShaderNodeValue(CurMat,AspectRatio,-1300, 400,"AspectRatio")
             
 
