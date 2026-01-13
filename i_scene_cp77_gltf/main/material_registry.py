@@ -24,6 +24,7 @@ from ..material_types.decal_gradientmap_recolor import DecalGradientmapRecolor
 from ..material_types.televisionad import TelevisionAd
 from ..material_types.window_parallax_interior_proxy import windowParallaxIntProx
 from ..material_types.hologram import Hologram
+from ..material_types.particles_hologram import ParticlesHologram
 from ..material_types.pbr_layer import pbr_layer
 from ..material_types.invisible import Invisible
 from ..material_types.device_diode import DeviceDiode
@@ -209,6 +210,13 @@ REGISTRY.register([
 REGISTRY.register([
     "base\\fx\\shaders\\hologram.mt",
 ], MaterialRule(factory=_factory_bip(Hologram)))
+
+REGISTRY.register(
+    [
+        "base\\fx\\shaders\\particles_hologram.mt",
+    ],
+    MaterialRule(factory=_factory_bip(ParticlesHologram)),
+)
 
 # Invisible
 REGISTRY.register([
