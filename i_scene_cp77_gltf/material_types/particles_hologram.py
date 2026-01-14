@@ -11,7 +11,13 @@ class ParticlesHologram:
 
     def create(self, Data, Mat):
         CurMat = Mat.node_tree
-        pBSDF = CurMat.nodes[loc("Principled BSDF")]
+
+        # start with a clean node tree
+        for node in CurMat.nodes:
+            CurMat.nodes.remove(node)
+
+        pBSDF = CurMat.nodes.new("ShaderNodeBsdfPrincipled")
+        mat_out = CurMat.nodes.new("ShaderNodeOutputMaterial")
         sockets = bsdf_socket_names()
 
         # Make nodes
@@ -77,17 +83,22 @@ class ParticlesHologram:
 
         # Position nodes
 
-        texture_coords.location = (-1560.0, -101.2)
-        aspect.location = (-1560.0, -393.5)
-        vec_mul.location = (-1370.0, -24.2)
-        combine_xyz.location = (-1370.0, -369.5)
-        dots.location = (-1180.0, -47.9)
-        vec_map.location = (-1130.0, -185.5)
-        dots_mul.location = (-840.0, 52.0)
-        alpha_mask.location = (-890.0, -209.2)
-        masks_mul.location = (-587.5, -35.4)
-        holo_colour.location = (-587.5, -239.7)
-        emission_mul.location = (-385.0, -126.7)
+        texture_coords.location = (-1396.3, 61.9)
+        aspect.location = (-1396.3, -304.2)
+        scale.location = (-1396.3, -466.1)
+        vec_mul.location = (-1206.3, -4.6)
+        scale_aspect.location = (-1206.3, -233.3)
+        combine_xyz.location = (-1003.8, -119.0)
+        scale_vec_mul.location = (-1003.8, -284.6)
+        vec_map.location = (-763.8, 65.1)
+        dots.location = (-813.8, -308.8)
+        alpha_mask.location = (-523.8, 41.0)
+        dots_mul.location = (-473.8, -208.7)
+        masks_mul.location = (-221.3, -55.3)
+        holo_colour.location = (-221.3, 18.2)
+        emission_mul.location = (-31.3, 131.6)
+        pBSDF.location = (183.7, 222.2)
+        mat_out.location = (473.7, 222.2)
 
         # Link nodes
 
@@ -116,3 +127,5 @@ class ParticlesHologram:
 
         CurMat.links.new(emission_mul.outputs[0], pBSDF.inputs[sockets["Emission"]])
         CurMat.links.new(masks_mul.outputs[0], pBSDF.inputs["Alpha"])
+
+        CurMat.links.new(pBSDF.outputs[0], mat_out.inputs[0])
