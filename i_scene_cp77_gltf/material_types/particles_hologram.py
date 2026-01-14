@@ -20,23 +20,31 @@ class ParticlesHologram:
         mat_out = CurMat.nodes.new("ShaderNodeOutputMaterial")
         sockets = bsdf_socket_names()
 
+        print('jazza Data["AlphaTexCoordSpeed"]', Data["AlphaTexCoordSpeed"])
+
         # Make nodes
 
-        texture_coords = CurMat.nodes.new("ShaderNodeTexCoord")
-        vec_mul = CurMat.nodes.new("ShaderNodeVectorMath")
-        vec_mul.operation = "MULTIPLY"
-        scale_vec_mul = CurMat.nodes.new("ShaderNodeVectorMath")
-        scale_vec_mul.operation = "MULTIPLY"
+        AlphaTexCoordSpeed = CurMat.nodes.new("ShaderNodeCombineXYZ")
 
-        aspect = CurMat.nodes.new("ShaderNodeValue")
-        scale = CurMat.nodes.new("ShaderNodeValue")
-        scale_aspect = CurMat.nodes.new("ShaderNodeMath")
-        scale_aspect.operation = "MULTIPLY"
-        combine_xyz = CurMat.nodes.new("ShaderNodeCombineXYZ")
+        AlphaSubUVWidth = CurMat.nodes.new("ShaderNodeValue")
+        TextureCoordinates = CurMat.nodes.new("ShaderNodeTexCoord")
+        AlphaTexCoordSpeedMul = CurMat.nodes.new("ShaderNodeVectorMath")
+        AlphaTexCoordSpeedMul.operation = "MULTIPLY"
 
-        vec_map = CurMat.nodes.new("ShaderNodeMapping")
+        AlphaSubWidthDiv = CurMat.nodes.new("ShaderNodeMath")
+        AlphaSubWidthDiv.operation = "DIVIDE"
+        AlphaSubUVHeight = CurMat.nodes.new("ShaderNodeValue")
+        TextureCoordinatesDiv = CurMat.nodes.new("ShaderNodeVectorMath")
+        TextureCoordinatesDiv.operation = "DIVIDE"
+        DotsCoords = CurMat.nodes.new("ShaderNodeValue")
 
-        dots = CreateShaderNodeTexImage(
+        CombineUV = CurMat.nodes.new("ShaderNodeCombineXYZ")
+        DotsCoordsMul = CurMat.nodes.new("ShaderNodeVectorMath")
+        DotsCoordsMul.operation = "MULTIPLY"
+
+        CombineUVMul = CurMat.nodes.new("ShaderNodeVectorMath")
+        CombineUVMul.operation = "MULTIPLY"
+        DotsTexture = CreateShaderNodeTexImage(
             CurMat,
             os.path.join(self.BasePath, Data["Dots"]),
             -800,
@@ -44,88 +52,112 @@ class ParticlesHologram:
             "DotsTexture",
             self.image_format,
         )
-        alpha_mask = CreateShaderNodeTexImage(
+
+        AlphaMask = CreateShaderNodeTexImage(
             CurMat,
             os.path.join(self.BasePath, Data["AlphaMask"]),
             -800,
             -250,
             "AlphaMask",
+            self.image_format,
+        )
+        DotsTextureMul = CurMat.nodes.new("ShaderNodeMath")
+        DotsTextureMul.operation = "MULTIPLY"
+
+        AlphaMaskMul = CurMat.nodes.new("ShaderNodeMath")
+        AlphaMaskMul.operation = "MULTIPLY"
+        ColorParam = CreateShaderNodeRGB(
+            CurMat,
+            Data["ColorParam"],
+            -400,
+            200,
+            "ColorParam",
         )
 
-        dots_mul = CurMat.nodes.new("ShaderNodeMath")
-        dots_mul.operation = "MULTIPLY"
-        masks_mul = CurMat.nodes.new("ShaderNodeMath")
-        masks_mul.operation = "MULTIPLY"
-
-        holo_colour = CreateShaderNodeRGB(
-            CurMat, Data["ColorParam"], -800, -250, "ColorParam"
-        )
-        emission_mul = CurMat.nodes.new("ShaderNodeMixRGB")
-        emission_mul.blend_type = "MULTIPLY"
-
+        ColorParamMul = CurMat.nodes.new("ShaderNodeMixRGB")
+        ColorParamMul.blend_type = "MULTIPLY"
         # Populate nodes
 
-        aspect.outputs[0].default_value = 1.32802  # Kinda arbitrary, what I measured
-        scale.outputs[0].default_value = 9.0
+        AlphaTexCoordSpeed.inputs[0].default_value = Data["AlphaTexCoordSpeed"]["X"]
+        AlphaTexCoordSpeed.inputs[1].default_value = Data["AlphaTexCoordSpeed"]["Y"]
+        AlphaTexCoordSpeed.inputs[2].default_value = Data["AlphaTexCoordSpeed"]["Z"]
 
-        combine_xyz.inputs[0].default_value = 1
-        combine_xyz.inputs[1].default_value = 1
-        combine_xyz.inputs[2].default_value = 1
+        AlphaSubUVWidth.outputs[0].default_value = Data["AlphaSubUVWidth"]
+        AlphaTexCoordSpeedMul.inputs[1].default_value = (1.0, 10.0, 1.0)
 
-        vec_mul.inputs[1].default_value = (13.0, 1.5, 1.5)
-        dots_mul.inputs[1].default_value = 5.0
-        dots_mul.use_clamp = True
+        AlphaSubWidthDiv.inputs[0].default_value = 1.0
+        AlphaSubUVHeight.outputs[0].default_value = Data["AlphaSubUVHeight"]
+        DotsCoords.outputs[0].default_value = Data["DotsCoords"]
 
-        emission_mul.inputs[0].default_value = 1.0
+        CombineUV.inputs[2].default_value = 1.0
+
+        DotsTextureMul.inputs[1].default_value = 5.0
+
+        ColorParamMul.inputs[0].default_value = 1.0
 
         pBSDF.inputs["Base Color"].default_value = (0.0, 0.0, 0.0, 1.0)
         pBSDF.inputs["Emission Strength"].default_value = 5.0
 
-        # Position nodes
-
-        texture_coords.location = (-1396.3, 61.9)
-        aspect.location = (-1396.3, -304.2)
-        scale.location = (-1396.3, -466.1)
-        vec_mul.location = (-1206.3, -4.6)
-        scale_aspect.location = (-1206.3, -233.3)
-        combine_xyz.location = (-1003.8, -119.0)
-        scale_vec_mul.location = (-1003.8, -284.6)
-        vec_map.location = (-763.8, 65.1)
-        dots.location = (-813.8, -308.8)
-        alpha_mask.location = (-523.8, 41.0)
-        dots_mul.location = (-473.8, -208.7)
-        masks_mul.location = (-221.3, -55.3)
-        holo_colour.location = (-221.3, 18.2)
-        emission_mul.location = (-31.3, 131.6)
-        pBSDF.location = (183.7, 222.2)
-        mat_out.location = (473.7, 222.2)
-
         # Link nodes
 
-        CurMat.links.new(texture_coords.outputs[2], vec_mul.inputs[0])
-        CurMat.links.new(texture_coords.outputs[2], vec_map.inputs[0])
+        CurMat.links.new(AlphaTexCoordSpeed.outputs[0], AlphaTexCoordSpeedMul.inputs[0])
 
-        CurMat.links.new(aspect.outputs[0], scale_aspect.inputs[0])
-        CurMat.links.new(scale.outputs[0], scale_aspect.inputs[1])
+        CurMat.links.new(AlphaSubUVWidth.outputs[0], AlphaSubWidthDiv.inputs[1])
+        CurMat.links.new(TextureCoordinates.outputs[2], CombineUVMul.inputs[0])
+        CurMat.links.new(TextureCoordinates.outputs[2], TextureCoordinatesDiv.inputs[0])
+        CurMat.links.new(
+            AlphaTexCoordSpeedMul.outputs[0], TextureCoordinatesDiv.inputs[1]
+        )
 
-        CurMat.links.new(vec_mul.outputs[0], scale_vec_mul.inputs[0])
-        CurMat.links.new(scale.outputs[0], scale_vec_mul.inputs[1])
+        CurMat.links.new(AlphaSubWidthDiv.outputs[0], CombineUV.inputs[0])
+        CurMat.links.new(AlphaSubUVHeight.outputs[0], CombineUV.inputs[1])
+        CurMat.links.new(TextureCoordinatesDiv.outputs[0], DotsCoordsMul.inputs[0])
+        CurMat.links.new(DotsCoords.outputs[0], DotsCoordsMul.inputs[1])
 
-        CurMat.links.new(scale_aspect.outputs[0], combine_xyz.inputs[0])
-        CurMat.links.new(combine_xyz.outputs[0], vec_map.inputs[3])
+        CurMat.links.new(CombineUV.outputs[0], CombineUVMul.inputs[1])
+        CurMat.links.new(DotsCoordsMul.outputs[0], DotsTexture.inputs[0])
 
-        CurMat.links.new(scale_vec_mul.outputs[0], dots.inputs[0])
-        CurMat.links.new(dots.outputs[0], dots_mul.inputs[0])
+        CurMat.links.new(CombineUVMul.outputs[0], AlphaMask.inputs[0])
+        CurMat.links.new(DotsTexture.outputs[0], DotsTextureMul.inputs[0])
 
-        CurMat.links.new(vec_map.outputs[0], alpha_mask.inputs[0])
+        CurMat.links.new(AlphaMask.outputs[0], AlphaMaskMul.inputs[0])
+        CurMat.links.new(DotsTextureMul.outputs[0], AlphaMaskMul.inputs[1])
 
-        CurMat.links.new(alpha_mask.outputs[0], masks_mul.inputs[0])
-        CurMat.links.new(dots_mul.outputs[0], masks_mul.inputs[1])
+        CurMat.links.new(AlphaMaskMul.outputs[0], ColorParamMul.inputs[2])
+        CurMat.links.new(AlphaMaskMul.outputs[0], pBSDF.inputs["Alpha"])
+        CurMat.links.new(ColorParam.outputs[0], ColorParamMul.inputs[1])
 
-        CurMat.links.new(holo_colour.outputs[0], emission_mul.inputs[1])
-        CurMat.links.new(masks_mul.outputs[0], emission_mul.inputs[2])
-
-        CurMat.links.new(emission_mul.outputs[0], pBSDF.inputs[sockets["Emission"]])
-        CurMat.links.new(masks_mul.outputs[0], pBSDF.inputs["Alpha"])
+        CurMat.links.new(ColorParamMul.outputs[0], pBSDF.inputs[sockets["Emission"]])
 
         CurMat.links.new(pBSDF.outputs[0], mat_out.inputs[0])
+
+        # Position nodes
+
+        AlphaTexCoordSpeed.location = (-1147.8, -241.9)
+
+        AlphaSubUVWidth.location = (-957.8, 205.7)
+        TextureCoordinates.location = (-957.8, 107.7)
+        AlphaTexCoordSpeedMul.location = (-957.8, -241.9)
+
+        AlphaSubWidthDiv.location = (-742.8, 47.4)
+        AlphaSubUVHeight.location = (-742.8, -143.9)
+        TextureCoordinatesDiv.location = (-742.8, -241.9)
+        DotsCoords.location = (-742.8, -410.6)
+
+        CombineUV.location = (-552.8, -26.2)
+        DotsCoordsMul.location = (-552.8, -291.7)
+
+        CombineUVMul.location = (-312.8, 43.8)
+        DotsTexture.location = (-362.8, -315.3)
+
+        AlphaMask.location = (-72.8, 19.9)
+        DotsTextureMul.location = (-22.8, -215.6)
+
+        AlphaMaskMul.location = (217.2, -0.9)
+        ColorParam.location = (217.2, -205.1)
+
+        ColorParamMul.location = (419.7, -92.4)
+
+        pBSDF.location = (609.7, 135.8)
+
+        mat_out.location = (899.7, 135.8)
