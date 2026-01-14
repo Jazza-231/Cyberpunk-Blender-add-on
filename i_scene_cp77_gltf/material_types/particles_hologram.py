@@ -12,6 +12,8 @@ class ParticlesHologram:
     def create(self, Data, Mat):
         CurMat = Mat.node_tree
 
+        print("jazza Data ", Data)
+
         # start with a clean node tree
         for node in CurMat.nodes:
             CurMat.nodes.remove(node)
@@ -83,11 +85,11 @@ class ParticlesHologram:
         AlphaTexCoordSpeed.inputs[2].default_value = Data["AlphaTexCoordSpeed"]["Z"]
 
         AlphaSubUVWidth.outputs[0].default_value = Data["AlphaSubUVWidth"]
-        AlphaTexCoordSpeedMul.inputs[1].default_value = (1.0, 10.0, 1.0)
+        AlphaTexCoordSpeedMul.inputs[1].default_value = (1.0, 100.0, 1.0)
 
-        AlphaSubWidthDiv.inputs[0].default_value = 1.0
-        AlphaSubUVHeight.outputs[0].default_value = Data["AlphaSubUVHeight"]
-        DotsCoords.outputs[0].default_value = Data["DotsCoords"]
+        AlphaSubWidthDiv.inputs[0].default_value = Data["AlphaTexCoordSpeed"]["X"]
+        AlphaSubUVHeight.outputs[0].default_value = abs(Data["AlphaSubUVHeight"])
+        DotsCoords.outputs[0].default_value = Data["DotsCoords"] * 10.0
 
         CombineUV.inputs[2].default_value = 1.0
 
