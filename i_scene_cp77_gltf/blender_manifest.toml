@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "i_scene_cp77_gltf"
-version = "1.7.5"
+version = "1.7.4"
 name = "Cyberpunk 2077 IO Suite"
 tagline = "Import and Export WolvenKit Cyberpunk2077 files."
 maintainer = "HitmanHimself, Turk, Jato, dragonzkiller, kwekmaster, glitchered, Simarilius, Doctor Presto, shotlastc, Rudolph2109, Holopointz, Peatral, John CO., Chase_81, akikoe,  sprt_, Jazza"
