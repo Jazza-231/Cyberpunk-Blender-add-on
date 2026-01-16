@@ -96,7 +96,7 @@ class ParticlesHologram:
         texture_speed_y.outputs[0].default_value = texture_speeds["Y"]
         texture_speed_z.outputs[0].default_value = texture_speeds["Z"]
 
-        uv_height.outputs[0].default_value = abs(Data.get("AlphaSubUVHeight", 1.0))
+        uv_height.outputs[0].default_value = Data.get("AlphaSubUVHeight", 1.0)
 
         combine_uv.inputs[2].default_value = 1.0
         scale_texture_speeds.inputs[1].default_value = (10.0, 1000.0, 10.0)
