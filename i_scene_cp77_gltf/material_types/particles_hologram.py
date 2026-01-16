@@ -43,9 +43,11 @@ class ParticlesHologram:
         uv_speed_div.operation = "DIVIDE"
         dots_scale = CurMat.nodes.new("ShaderNodeValue")
 
+        alpha_mask_path = "engine\\textures\\small_white.xbm"
+
         alpha_mask = CreateShaderNodeTexImage(
             CurMat,
-            os.path.join(self.BasePath, Data["AlphaMask"]),
+            os.path.join(self.BasePath, Data.get("AlphaMask", alpha_mask_path)),
             0,
             0,
             "AlphaMask",
@@ -54,9 +56,11 @@ class ParticlesHologram:
         uv_speed_scale = CurMat.nodes.new("ShaderNodeVectorMath")
         uv_speed_scale.operation = "SCALE"
 
+        dots_texture_path = "base\\fx\\_textures\\masks\\shapes\\fx_dot_01_d.xbm"
+
         dots_texture = CreateShaderNodeTexImage(
             CurMat,
-            os.path.join(self.BasePath, Data["Dots"]),
+            os.path.join(self.BasePath, Data.get("Dots", dots_texture_path)),
             0,
             0,
             "DotsTexture",
@@ -68,8 +72,11 @@ class ParticlesHologram:
 
         combine_masks = CurMat.nodes.new("ShaderNodeMath")
         combine_masks.operation = "MULTIPLY"
+
+        hologram_default_colour = {"Red": 255, "Green": 255, "Blue": 255, "Alpha": 255}
+
         hologram_colour = CreateShaderNodeRGB(
-            CurMat, Data["ColorParam"], 0, 0, "ColorParam"
+            CurMat, Data.get("ColorParam", hologram_default_colour), 0, 0, "ColorParam"
         )
         hologram_strength = CurMat.nodes.new("ShaderNodeValue")
 
@@ -80,22 +87,25 @@ class ParticlesHologram:
 
         # Populate values
 
-        uv_width.outputs[0].default_value = Data["AlphaSubUVWidth"]
-        texture_speeds = Data["AlphaTexCoordSpeed"]
+        uv_width.outputs[0].default_value = Data.get("AlphaSubUVWidth", 1.0)
+
+        texture_default_speeds = {"X": 1.0, "Y": 1.0, "Z": 0.0, "W": 0.0}
+
+        texture_speeds = Data.get("AlphaTexCoordSpeed", texture_default_speeds)
         texture_speed_x.outputs[0].default_value = texture_speeds["X"]
         texture_speed_y.outputs[0].default_value = texture_speeds["Y"]
         texture_speed_z.outputs[0].default_value = texture_speeds["Z"]
 
-        uv_height.outputs[0].default_value = abs(Data["AlphaSubUVHeight"])
+        uv_height.outputs[0].default_value = abs(Data.get("AlphaSubUVHeight", 1.0))
 
         combine_uv.inputs[2].default_value = 1.0
         scale_texture_speeds.inputs[1].default_value = (10.0, 1000.0, 10.0)
 
-        dots_scale.outputs[0].default_value = Data["DotsCoords"]
+        dots_scale.outputs[0].default_value = Data.get("DotsCoords", 50.0)
 
         sharpen_mask.inputs[1].default_value = 5
 
-        hologram_strength.outputs[0].default_value = Data["ColorMultiplier"]
+        hologram_strength.outputs[0].default_value = Data.get("ColorMultiplier", 1)
 
         apply_mask.inputs[0].default_value = 1.0
         scale_strength.inputs[1].default_value = 10.0
