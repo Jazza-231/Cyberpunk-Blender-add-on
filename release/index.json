@@ -7,7 +7,7 @@
       "id": "i_scene_cp77_gltf",
       "name": "Cyberpunk 2077 IO Suite",
       "tagline": "Import and Export WolvenKit Cyberpunk2077 files.",
-      "version": "1.7.5",
+      "version": "1.7.4",
       "type": "add-on",
       "maintainer": "HitmanHimself, Turk, Jato, dragonzkiller, kwekmaster, glitchered, Simarilius, Doctor Presto, shotlastc, Rudolph2109, Holopointz, Peatral, John CO., Chase_81, akikoe,  sprt_, Jazza",
       "license": [
@@ -22,8 +22,8 @@
         "Game Engine"
       ],
       "archive_url": "./i_scene_cp77_gltf.zip",
-      "archive_size": 4567525,
-      "archive_hash": "sha256:f2a1226d9c3805ded10d34c136fc319942b645f8cb2a8b1dcbaeefe74886bf4b"
+      "archive_size": 4571035,
+      "archive_hash": "sha256:41ed9296efddf4204251eb9bc33e275119f973a7e82422aa7b3c8cce774cd506"
     }
   ]
 }
