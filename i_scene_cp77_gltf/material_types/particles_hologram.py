@@ -2,6 +2,13 @@ import bpy
 import os
 from ..main.common import *
 
+# Jazza: This is horrendously broken. Its issues include:
+# 1. A low amount of maintainability
+# 2. It messes up the `DotsCoords` between different holograms
+# 3. `AlphaSubUVHeight` can be negative, which is required in some places and breaks things in others
+# 4. It is not animated, nor does it properly handle `AlphaGlobal` - That is not even understood in-game`
+# 5. It contains arbitrary values, which don't even work across material instances
+
 
 class ParticlesHologram:
     def __init__(self, BasePath, image_format, ProjPath):
@@ -96,10 +103,10 @@ class ParticlesHologram:
         texture_speed_y.outputs[0].default_value = texture_speeds["Y"]
         texture_speed_z.outputs[0].default_value = texture_speeds["Z"]
 
-        uv_height.outputs[0].default_value = Data.get("AlphaSubUVHeight", 1.0)
+        uv_height.outputs[0].default_value = -(Data.get("AlphaSubUVHeight", 1.0))
 
         combine_uv.inputs[2].default_value = 1.0
-        scale_texture_speeds.inputs[1].default_value = (10.0, 1000.0, 10.0)
+        scale_texture_speeds.inputs[1].default_value = (0.1, 10.0, 10.0)
 
         dots_scale.outputs[0].default_value = Data.get("DotsCoords", 50.0)
 
@@ -133,7 +140,7 @@ class ParticlesHologram:
 
         CurMat.links.new(uv_mul.outputs[0], alpha_mask.inputs[0])
         CurMat.links.new(uv_speed_div.outputs[0], uv_speed_scale.inputs[0])
-        CurMat.links.new(dots_scale.outputs[0], uv_speed_scale.inputs[1])
+        CurMat.links.new(dots_scale.outputs[0], uv_speed_scale.inputs[3])
 
         CurMat.links.new(alpha_mask.outputs[0], combine_masks.inputs[0])
 
