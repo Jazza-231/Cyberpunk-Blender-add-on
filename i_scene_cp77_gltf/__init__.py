@@ -1,23 +1,23 @@
-print('-------------------- Cyberpunk IO Suite Starting--------------------')
-print('')
+print("-------------------- Cyberpunk IO Suite Starting--------------------")
+print("")
 from .cyber_prefs import *
 from .cyber_props import *
 import bpy
 import textwrap
-from bpy.props import (StringProperty)
-from bpy.types import (Operator, Panel)
-from . collisiontools import *
-from . meshtools import *
-from . animtools import *
-from . importers import *
-from . exporters import *
-from . scriptman import *
-from . materialtools import *
+from bpy.props import StringProperty
+from bpy.types import Operator, Panel
+from .collisiontools import *
+from .meshtools import *
+from .animtools import *
+from .importers import *
+from .exporters import *
+from .scriptman import *
+from .materialtools import *
 
 bl_info = {
     "name": "Cyberpunk 2077 IO Suite",
     "author": "HitmanHimself, Turk, Jato, dragonzkiller, kwekmaster, glitchered, Simarilius, Doctor Presto, shotlastc, Rudolph2109, Holopointz, Peatral, John CO., Chase_81, akikoe,  sprt_, Jazza",
-    "version": (1, 7, 4),
+    "version": (1, 7, 5),
     "blender": (4, 5, 0),
     "location": "File > Import-Export",
     "description": "Import and Export WolvenKit Cyberpunk2077 gLTF models with materials, Import .streamingsector and .ent from .json",
@@ -38,6 +38,7 @@ print()
 
 res_dir = get_resources_dir()
 
+
 class ShowMessageBox(Operator):
     bl_idname = "cp77.message_box"
     bl_label = "Cyberpunk 2077 IO Suite"
@@ -45,32 +46,33 @@ class ShowMessageBox(Operator):
     message: StringProperty(default="")
 
     def execute(self, context):
-        self.report({'INFO'}, self.message)
-        return {'FINISHED'}
+        self.report({"INFO"}, self.message)
+        return {"FINISHED"}
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=400)
 
     def draw_header(self, context):
         layout = self.layout
-        layout.label(text='Cyberpunk 2077 IO Suite')
+        layout.label(text="Cyberpunk 2077 IO Suite")
 
     def draw(self, context):
-        wrapp = textwrap.TextWrapper(width=70) #50 = maximum length
+        wrapp = textwrap.TextWrapper(width=70)  # 50 = maximum length
         wList = wrapp.wrap(text=self.message)
         for text in wList:
-            row = self.layout.row(align = True)
-            row.alignment = 'EXPAND'
+            row = self.layout.row(align=True)
+            row.alignment = "EXPAND"
             row.label(text=text)
+
 
 class CollectionAppearancePanel(Panel):
     bl_label = "Ent Appearances"
     bl_idname = "PANEL_PT_appearance_variants"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
     bl_context = "collection"
 
-    #only draw the if the collector has an appearanceName property
+    # only draw the if the collector has an appearanceName property
     @classmethod
     def poll(cls, context):
         collection = context.collection
@@ -81,7 +83,9 @@ class CollectionAppearancePanel(Panel):
         collection = context.collection
         layout.prop(collection, "appearanceName")
 
+
 classes = [ShowMessageBox, CollectionAppearancePanel]
+
 
 def register():
     register_prefs()
@@ -95,14 +99,15 @@ def register():
     register_materialtools()
 
     for cls in classes:
-        if cls.__name__ == "JSONTool": # this one is static
+        if cls.__name__ == "JSONTool":  # this one is static
             continue
         if not hasattr(bpy.types, cls.__name__):
             bpy.utils.register_class(cls)
     load_icons()
-    print('')
-    print('-------------------- Cyberpunk IO Suite Has Started--------------------')
-    print('')
+    print("")
+    print("-------------------- Cyberpunk IO Suite Has Started--------------------")
+    print("")
+
 
 def unregister():
     unregister_materialtools()
@@ -118,6 +123,7 @@ def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     unload_icons()
+
 
 if __name__ == "__main__":
     register()
