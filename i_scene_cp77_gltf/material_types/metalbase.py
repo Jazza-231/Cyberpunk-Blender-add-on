@@ -140,6 +140,12 @@ class MetalBase:
         mulNode.location = (-450,-450)
         mulNode.hide = True
 
+        emissionMulNode = CurMat.nodes.new("ShaderNodeMixRGB")
+        emissionMulNode.inputs[0].default_value = 1
+        emissionMulNode.blend_type = 'MULTIPLY'
+        emissionMulNode.location = (-270,-450)
+        emissionMulNode.hide = True
+
         if "Emissive" in Data:
             EmImg=imageFromRelPath(Data["Emissive"],self.image_format, DepotPath=self.BasePath, ProjPath=self.ProjPath)
             emTexNode =create_node(CurMat.nodes,"ShaderNodeTexImage", (-800,-500), label="Emissive", image=EmImg)
@@ -149,7 +155,9 @@ class MetalBase:
             emColor = CreateShaderNodeRGB(CurMat, Data["EmissiveColor"],-700,-450,"EmissiveColor")
             CurMat.links.new(emColor.outputs[0],mulNode.inputs[1])
 
-        CurMat.links.new(mulNode.outputs[0],pBSDF.inputs[sockets['Emission']])
+        CurMat.links.new(mulNode.outputs[0],emissionMulNode.inputs[1])
+        CurMat.links.new(bColNode.outputs[0], emissionMulNode.inputs[2])
+        CurMat.links.new(emissionMulNode.outputs[0],pBSDF.inputs[sockets['Emission']])
 
         if "EmissiveEV" in Data:
             pBSDF.inputs['Emission Strength'].default_value =  Data["EmissiveEV"]
