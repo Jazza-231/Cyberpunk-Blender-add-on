@@ -246,13 +246,25 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
                     if s.type == 'VIEW_3D':
                         s.clip_end = 50000
     props = bpy.context.scene.cp77_panel_props 
-    escaped_path = glob.escape(path)    
-    jsonpath = glob.glob(os.path.join(escaped_path, "**", "*.streamingsector.json"), recursive = True)
-    mesh_jsons =  glob.glob(os.path.join(escaped_path,"**","*mesh.json"), recursive = True)
-    anim_files = glob.glob(os.path.join(escaped_path,"**","*anims.glb"), recursive = True)
-    app_path = glob.glob(os.path.join(escaped_path,"**","*.app.json"), recursive = True)
-    rigjsons = glob.glob(os.path.join(escaped_path,"**","*.rig.json"), recursive = True)
-    glbs =  glob.glob(os.path.join(escaped_path,"**","*.glb"), recursive = True)
+    escaped_path = glob.escape(path)
+
+    jsonpath, mesh_jsons, anim_files, app_path, rigjsons, glbs = [], [], [], [], [], []
+
+    for root, _, files in os.walk(escaped_path):
+        for name in files:
+            if name.endswith(".streamingsector.json"):
+                jsonpath.append(os.path.join(root, name))
+            elif name.endswith("mesh.json"):
+                mesh_jsons.append(os.path.join(root, name))
+            elif name.endswith(".app.json"):
+                app_path.append(os.path.join(root, name))
+            elif name.endswith(".rig.json"):
+                rigjsons.append(os.path.join(root, name))
+            elif name.endswith(".glb"):
+                glbs.append(os.path.join(root, name))
+                if name.endswith("anims.glb"):
+                    anim_files.append(os.path.join(root, name))
+
     path = os.path.join( os.path.dirname(filepath),'source','raw','base')
     meshes={}
     C = bpy.context
