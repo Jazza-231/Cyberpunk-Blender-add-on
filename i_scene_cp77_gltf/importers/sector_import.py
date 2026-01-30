@@ -14,6 +14,7 @@
 # 2) If you want collision objects, change want_collisions to True
 # 3) If you want it to generate the _new collections for you to add new stuff in set am_modding to True
 # 4) Run it
+from collections import defaultdict
 from ..main.common import *
 from ..jsontool import JSONTool
 import glob
@@ -415,6 +416,10 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
         for index, obj in enumerate(t):
             obj['nodeDataIndex']=index
 
+        instances_by_index = defaultdict(list)
+        for inst in t:
+            instances_by_index[inst['NodeIndex']].append(inst)
+
         numExpectedNodes = len(t)
         sectorName=os.path.basename(filepath)[:-5]
 
@@ -447,7 +452,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
             if  (limittypes and ntype in import_types) or limittypes==False: #or type=='worldCableMeshNode': # can add a filter for dev here
                 match ntype:
                     case 'worldAISpotNode':
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
 
                         print('worldAISpotNode',i)
                         if instances:
@@ -488,7 +493,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
                                 print(traceback.format_exc())
                                 print(f"Failed during Entity import on {entpath} from app {app}")
                         if imported:
-                            instances = [x for x in t if x['NodeIndex'] == i]
+                            instances = instances_by_index.get(i, [])
                             for idx,inst in enumerate(instances):
                                 #print(inst)
                                 group=move_coll
@@ -540,7 +545,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
                     case 'worldBendedMeshNode' | 'worldCableMeshNode' :
                         #print(ntype)
                         meshname = data['mesh']['DepotPath']['$value'].replace('\\', os.sep)
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
                         #if len(instances)>1:
                         #    print('Multiple Instances of node ',i)
 
@@ -634,7 +639,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
 
                     case 'worldInstancedMeshNode' :
                         #print('worldInstancedMeshNode')
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
                         for idx,inst in enumerate(instances):
                             meshname = data['mesh']['DepotPath']['$value'].replace('\\', os.sep)
                             num=data['worldTransformsBuffer']['numElements']
@@ -692,7 +697,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
 
                     case 'worldFoliageNode' :
                         #print('worldFoliageNode')
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
                         for idx,inst in enumerate(instances):
                             meshname = data['mesh']['DepotPath']['$value'].replace('\\', os.sep)
                             foliageResource=data['foliageResource']['DepotPath']['$value'].replace('\\', os.sep)+'.json'
@@ -764,7 +769,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
                     case 'worldStaticDecalNode':
                         #print('worldStaticDecalNode')
                         # decals are imported as planes tagged with the material details so you can see what they are and move them.
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
                         for idx,inst in enumerate(instances):
                             #print( inst)
                             #o = bpy.data.objects.new( "empty", None )
@@ -827,7 +832,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
 
                     case 'worldSplineNode':
                         #print('worldSplineNode',i)
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
                         if len(instances)>0:
                             spline_node=e
                             spline_ndata=instances[0]
@@ -877,7 +882,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
 
                                         if (imported):
                                             #print('Group found for ',groupname)
-                                            instances = [x for x in t if x['NodeIndex'] == i]
+                                            instances = instances_by_index.get(i, [])
                                             for inst in instances:
                                                 new=bpy.data.collections.new(groupname)
                                                 Sector_coll.children.link(new)
@@ -933,7 +938,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
                                                 rot_time=data['fullRotationTime']
                                                 reverse=data['reverseDirection']
 
-                                            instances = [x for x in t if x['NodeIndex'] == i]
+                                            instances = instances_by_index.get(i, [])
                                             for idx,inst in enumerate(instances):
                                                 new=bpy.data.collections.new(groupname)
                                                 Sector_coll.children.link(new)
@@ -991,7 +996,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
 
                     case 'worldInstancedDestructibleMeshNode':
                         #print('worldInstancedDestructibleMeshNode',i)
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
                         for instidx,inst in enumerate(instances):
                             if isinstance(e, dict) and 'mesh' in data.keys():
                                 meshname = data['mesh']['DepotPath']['$value'].replace('\\', os.sep)
@@ -1080,7 +1085,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
                     case 'worldStaticLightNode':
                         #print('worldStaticLightNode',i)
                         if with_lights:
-                            instances = [x for x in t if x['NodeIndex'] == i]
+                            instances = instances_by_index.get(i, [])
                             for inst in instances:
                                 light_node=e['Data']
                                 light_name=e['Data']['debugName']['$value']
@@ -1124,7 +1129,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
 
                     case 'worldStaticParticleNode'|'worldEffectNode'|'worldPopulationSpawnerNode':
                         #print('worldStaticParticleNode',i)
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
                         for idx,inst in enumerate(instances):
                             o = bpy.data.objects.new( "empty", None )
                             o.name=ntype+'_'+e['Data']['debugName']['$value']
@@ -1156,7 +1161,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
 
                     case 'worldStaticSoundEmitterNode':
                         #print(ntype)
-                        instances = [x for x in t if x['NodeIndex'] == i]
+                        instances = instances_by_index.get(i, [])
                         for idx,inst in enumerate(instances):
                             o = bpy.data.objects.new( "empty", None )
                             o.empty_display_type = 'SPHERE'
@@ -1191,7 +1196,7 @@ def importSectors( filepath, with_mats, remap_depot, want_collisions, am_modding
                             else:
                                 sector_Collisions_coll=bpy.data.collections.new(sector_Collisions)
                                 coll_scene.children.link(sector_Collisions_coll)
-                            inst = [x for x in t if x['NodeIndex'] == i][0]
+                            inst = instances_by_index[i][0]
                             Actors=e['Data']['compiledData']['Data']['Actors']
                             for idx,act in enumerate(Actors):
                                 #print(len(act['Shapes']))
