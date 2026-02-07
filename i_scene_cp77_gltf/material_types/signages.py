@@ -91,7 +91,10 @@ class Signages:
         invert_mask = CurMat.nodes.new("ShaderNodeMath")
         invert_mask.operation = "SUBTRACT"
 
+        uniform = value_node(all_data, "UniformColor", 0)
         map_range = CurMat.nodes.new("ShaderNodeMapRange")
+
+        uniform_mix = CurMat.nodes.new("ShaderNodeMix")
 
         colour_ramp_node = CurMat.nodes.new("ShaderNodeValToRGB")
         colour_ramp_node.color_ramp.interpolation = "CONSTANT"
@@ -107,6 +110,8 @@ class Signages:
         invert_mask.inputs[0].default_value = 1
 
         map_range.inputs[2].default_value = 0.8
+
+        uniform_mix.inputs[3].default_value = 0.0
 
         colour_ramp_elements = colour_ramp_node.color_ramp.elements
         colour_ramp_elements.remove(colour_ramp_elements[1])
@@ -126,7 +131,10 @@ class Signages:
 
         CurMat.links.new(main_texture.outputs[0], invert_mask.inputs[1])
         CurMat.links.new(invert_mask.outputs[0], map_range.inputs[0])
-        CurMat.links.new(map_range.outputs[0], colour_ramp_node.inputs[0])
+
+        CurMat.links.new(uniform.outputs[0], uniform_mix.inputs[0])
+        CurMat.links.new(map_range.outputs[0], uniform_mix.inputs[2])
+        CurMat.links.new(uniform_mix.outputs[0], colour_ramp_node.inputs[0])
 
         CurMat.links.new(emission_ev.outputs[0], arbitrary_emissive_ev_multiply.inputs[0])
 
@@ -141,13 +149,15 @@ class Signages:
 
         # Position nodes
 
-        main_texture.location = (-615.6, -35.6)
-        invert_mask.location = (-325.6, 85.2)
-        map_range.location = (-135.6, 85.2)
-        colour_ramp_node.location = (66.9, 85.2)
+        main_texture.location = (-703.3, -115.9)
+        invert_mask.location = (-413.3, 4.4)
+        map_range.location = (-223.3, 4.4)
+        uniform.location = (-223.3, 78.0)
+        uniform_mix.location = (-33.3, 89.5)
+        colour_ramp_node.location = (169.2, 89.5)
 
-        emission_ev.location = (-135.6, -257.8)
-        arbitrary_emissive_ev_multiply.location = (116.9, -162.8)
+        emission_ev.location = (-33.3, -253.2)
+        arbitrary_emissive_ev_multiply.location = (219.2, -158.5)
 
-        pBSDF.location = (369.4, 89.8)
-        mat_out.location = (659.4, 89.8)
+        pBSDF.location = (471.7, 94.2)
+        mat_out.location = (761.7, 94.2)
