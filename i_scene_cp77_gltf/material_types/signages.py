@@ -1,4 +1,5 @@
 import os
+from typing import cast
 import bpy
 from ..main.common import (
     CreateShaderNodeTexImage,
@@ -106,7 +107,30 @@ class Signages:
         arbitrary_emissive_ev_multiply = CurMat.nodes.new("ShaderNodeMath")
         arbitrary_emissive_ev_multiply.operation = "MULTIPLY"
 
+        blinking_speed = value_node(all_data, "BlinkingSpeed", 0)
+
+        reroute_one = CurMat.nodes.new("NodeReroute")
+        reroute_two = CurMat.nodes.new("NodeReroute")
+
+        double = CurMat.nodes.new("ShaderNodeMath")
+        double.operation = "MULTIPLY"
+
         seconds = CreateShaderNodeValue(CurMat, 0, 0, 0, "Seconds")
+        modulo = CurMat.nodes.new("ShaderNodeMath")
+        modulo.operation = "FLOORED_MODULO"
+        snap = CurMat.nodes.new("ShaderNodeMath")
+        snap.operation = "SNAP"
+        blink_scale = CurMat.nodes.new("ShaderNodeMath")
+        blink_scale.operation = "MULTIPLY"
+
+        uv_coords = CurMat.nodes.new("ShaderNodeTexCoord")
+        blinking_add = CurMat.nodes.new("ShaderNodeVectorMath")
+        blinking_add.operation = "ADD"
+
+        default_blinking_texture = "base\\fx\\_textures\\masks\\noise\\fx_organic_noise_01_d.xbm"
+        blinking_texture = image_node(all_data, "NoiseTexture", default_blinking_texture)
+        blinking_multiply = CurMat.nodes.new("ShaderNodeMath")
+        blinking_multiply.operation = "MULTIPLY"
 
         # Seconds driver
 
@@ -146,6 +170,9 @@ class Signages:
 
         arbitrary_emissive_ev_multiply.inputs[1].default_value = 10.0
 
+        double.inputs[1].default_value = 2
+        blink_scale.inputs[1].default_value = 0.5
+
         # Link nodes
 
         CurMat.links.new(main_texture.outputs[0], invert_mask.inputs[1])
@@ -160,23 +187,60 @@ class Signages:
         CurMat.links.new(colour_ramp_node.outputs[0], pBSDF.inputs["Base Color"])
         CurMat.links.new(colour_ramp_node.outputs[0], pBSDF.inputs[sockets["Emission"]])
 
-        CurMat.links.new(
-            arbitrary_emissive_ev_multiply.outputs[0], pBSDF.inputs["Emission Strength"]
-        )
+        CurMat.links.new(blinking_speed.outputs[0], double.inputs[0])
+        CurMat.links.new(double.outputs[0], modulo.inputs[1])
+
+        CurMat.links.new(seconds.outputs[0], modulo.inputs[0])
+        CurMat.links.new(modulo.outputs[0], snap.inputs[0])
+
+        CurMat.links.new(blinking_speed.outputs[0], reroute_one.inputs[0])
+        CurMat.links.new(reroute_one.outputs[0], reroute_two.inputs[0])
+        CurMat.links.new(reroute_two.outputs[0], snap.inputs[1])
+
+        CurMat.links.new(snap.outputs[0], blink_scale.inputs[0])
+
+        CurMat.links.new(uv_coords.outputs[2], blinking_add.inputs[0])
+        CurMat.links.new(blink_scale.outputs[0], blinking_add.inputs[1])
+
+        CurMat.links.new(blinking_add.outputs[0], blinking_texture.inputs[0])
+
+        CurMat.links.new(arbitrary_emissive_ev_multiply.outputs[0], blinking_multiply.inputs[0])
+        CurMat.links.new(blinking_texture.outputs[0], blinking_multiply.inputs[1])
+
+        CurMat.links.new(blinking_multiply.outputs[0], pBSDF.inputs["Emission Strength"])
 
         CurMat.links.new(pBSDF.outputs[0], mat_out.inputs[0])
 
         # Position nodes
 
-        main_texture.location = (-703.3, -115.9)
-        invert_mask.location = (-413.3, 4.4)
-        map_range.location = (-223.3, 4.4)
-        uniform.location = (-223.3, 78.0)
-        uniform_mix.location = (-33.3, 89.5)
-        colour_ramp_node.location = (169.2, 89.5)
+        blinking_speed.location = (-918.8, -430.3)
+        reroute_one.location = (-728.8, -483.3)
+        reroute_two.location = (-398.8, -483.3)
 
-        emission_ev.location = (-33.3, -253.2)
-        arbitrary_emissive_ev_multiply.location = (219.2, -158.5)
+        seconds.location = (-728.8, -218.5)
+        double.location = (-728.8, -292.0)
 
-        pBSDF.location = (471.7, 94.2)
-        mat_out.location = (761.7, 94.2)
+        modulo.location = (-538.8, -207.7)
+
+        main_texture.location = (-348.8, 189.7)
+        snap.location = (-298.8, -240.7)
+
+        invert_mask.location = (-58.8, 310.8)
+        uv_coords.location = (-58.8, 33.3)
+        blink_scale.location = (-58.8, -240.7)
+
+        uniform.location = (131.2, 384.4)
+        map_range.location = (131.2, 310.8)
+        emission_ev.location = (131.2, -27.5)
+        blinking_add.location = (131.2, -103.7)
+
+        uniform_mix.location = (371.2, 396.1)
+        arbitrary_emissive_ev_multiply.location = (371.2, 67.5)
+        blinking_texture.location = (321.2, -127.4)
+
+        colour_ramp_node.location = (611.2, 396.1)
+        blinking_multiply.location = (661.2, 30.1)
+
+        pBSDF.location = (913.7, 343.2)
+
+        mat_out.location = (1203.7, 343.2)
