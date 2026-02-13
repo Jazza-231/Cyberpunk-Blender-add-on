@@ -1,4 +1,5 @@
 import os
+import bpy
 from ..main.common import (
     CreateShaderNodeTexImage,
     CreateShaderNodeRGB,
@@ -104,6 +105,24 @@ class Signages:
 
         arbitrary_emissive_ev_multiply = CurMat.nodes.new("ShaderNodeMath")
         arbitrary_emissive_ev_multiply.operation = "MULTIPLY"
+
+        seconds = CreateShaderNodeValue(CurMat, 0, 0, 0, "Seconds")
+
+        # Seconds driver
+
+        fcurve = seconds.outputs[0].driver_add("default_value")
+        driver = fcurve.driver
+        driver.type = "SCRIPTED"
+        driver.expression = "frame / fps"
+
+        var = driver.variables.new()
+        var.name = "fps"
+        var.type = "SINGLE_PROP"
+
+        target = var.targets[0]
+        target.id_type = "SCENE"
+        target.id = bpy.context.scene
+        target.data_path = "render.fps"
 
         # Populate values
 
