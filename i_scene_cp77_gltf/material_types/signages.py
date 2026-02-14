@@ -96,7 +96,13 @@ class Signages:
         uniform = value_node(all_data, "UniformColor", 0)
         map_range = CurMat.nodes.new("ShaderNodeMapRange")
 
+        colour_attribute = CurMat.nodes.new("ShaderNodeVertexColor")
+        colour_attribute.layer_name = "Color"
+        separate_rgb = CurMat.nodes.new("ShaderNodeSeparateColor")
+        use_vertex = value_node(all_data, "UseVertexColorOrMap", 0)
+
         uniform_mix = CurMat.nodes.new("ShaderNodeMix")
+        use_vertex_mix = CurMat.nodes.new("ShaderNodeMix")
 
         colour_ramp_node = CurMat.nodes.new("ShaderNodeValToRGB")
         colour_ramp_node.color_ramp.interpolation = "CONSTANT"
@@ -168,6 +174,8 @@ class Signages:
 
         colour_ramp_elements.remove(colour_ramp_elements[0])
 
+        colour_ramp_elements[len(colour_ramp_elements) - 1].position -= 0.005
+
         arbitrary_emissive_ev_multiply.inputs[1].default_value = 10.0
 
         double.inputs[1].default_value = 2.0
@@ -180,9 +188,14 @@ class Signages:
         CurMat.links.new(main_texture.outputs[0], invert_mask.inputs[1])
         CurMat.links.new(invert_mask.outputs[0], map_range.inputs[0])
 
+        CurMat.links.new(colour_attribute.outputs[0], separate_rgb.inputs[0])
+        CurMat.links.new(use_vertex.outputs[0], use_vertex_mix.inputs[0])
+        CurMat.links.new(separate_rgb.outputs[0], use_vertex_mix.inputs[2])
+
         CurMat.links.new(uniform.outputs[0], uniform_mix.inputs[0])
         CurMat.links.new(map_range.outputs[0], uniform_mix.inputs[2])
-        CurMat.links.new(uniform_mix.outputs[0], colour_ramp_node.inputs[0])
+        CurMat.links.new(uniform_mix.outputs[0], use_vertex_mix.inputs[3])
+        CurMat.links.new(use_vertex_mix.outputs[0], colour_ramp_node.inputs[0])
 
         CurMat.links.new(emission_ev.outputs[0], arbitrary_emissive_ev_multiply.inputs[0])
 
@@ -212,34 +225,38 @@ class Signages:
 
         # Position nodes
 
-        blinking_speed.location = (-1049.3, -405.3)
+        blinking_speed.location = (-1056.3, -522.1)
 
-        seconds.location = (-859.3, -236.5)
-        double.location = (-859.3, -310.0)
+        seconds.location = (-866.3, -353.6)
+        double.location = (-866.3, -427.1)
 
-        seconds_speed_multiply.location = (-669.3, -225.8)
+        seconds_speed_multiply.location = (-676.3, -342.8)
 
-        modulo.location = (-479.3, -225.8)
+        main_texture.location = (-486.3, 93.1)
+        modulo.location = (-436.3, -342.8)
 
-        main_texture.location = (-289.3, 203.8)
-        snap.location = (-239.3, -225.8)
+        invert_mask.location = (-196.3, 214.5)
+        snap.location = (-196.3, -342.8)
 
-        invert_mask.location = (0.7, 325.4)
-        uv_coords.location = (0.7, 48.2)
-        blink_scale.location = (0.7, -225.8)
+        colour_attribute.location = (-6.3, 504.9)
+        uniform.location = (-6.3, 288.0)
+        map_range.location = (-6.3, 214.5)
+        uv_coords.location = (-6.3, -68.2)
+        blink_scale.location = (-6.3, -342.8)
 
-        uniform.location = (190.7, 398.9)
-        map_range.location = (190.7, 325.4)
-        emission_ev.location = (190.7, -13.3)
-        blinking_add.location = (190.7, -88.8)
+        use_vertex.location = (196.2, 578.5)
+        separate_rgb.location = (196.2, 504.9)
+        uniform_mix.location = (196.2, 281.2)
+        emission_ev.location = (196.2, -97.0)
+        blinking_add.location = (196.2, -251.9)
 
-        uniform_mix.location = (430.7, 410.8)
-        arbitrary_emissive_ev_multiply.location = (430.7, 82.0)
-        blinking_texture.location = (380.7, -112.9)
+        use_vertex_mix.location = (448.7, 504.9)
+        arbitrary_emissive_ev_multiply.location = (448.7, -2.1)
+        blinking_texture.location = (398.7, -275.7)
 
-        colour_ramp_node.location = (683.2, 410.8)
-        blinking_multiply.location = (733.2, 44.9)
+        colour_ramp_node.location = (701.2, 504.9)
+        blinking_multiply.location = (751.2, -39.0)
 
-        pBSDF.location = (985.7, 357.7)
+        pBSDF.location = (1016.2, 294.7)
 
-        mat_out.location = (1275.7, 357.7)
+        mat_out.location = (1306.2, 294.7)
